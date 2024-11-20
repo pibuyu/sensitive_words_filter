@@ -13,5 +13,6 @@ type (
 		GetDelChan() <-chan string
 		AddWord(words ...string) error
 		DelWord(words ...string) error
+		//InitDict() error
 	}
 )

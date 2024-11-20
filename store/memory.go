@@ -24,6 +24,19 @@ func NewMemoryModel() *MemoryModel {
 	}
 }
 
+//var defaultDict embed.FS
+//
+//func (m *MemoryModel) InitDict() error {
+//	executablePath, _ := os.Executable()
+//	log.Printf("可执行路径为：%v", executablePath)
+//	dictFile, err := defaultDict.Open("../dict/default_dict.txt")
+//	if err != nil {
+//		return err
+//	}
+//	defer dictFile.Close()
+//	return m.LoadDict(dictFile)
+//}
+
 func (m *MemoryModel) LoadDictPath(paths ...string) error {
 	for _, path := range paths {
 		err := func(path string) error {
