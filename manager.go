@@ -1,8 +1,8 @@
 package sensitive_words_filter
 
 import (
-	"sensitive_words_filter/filter"
-	"sensitive_words_filter/store"
+	"github.com/pibuyu/sensitive_words_filter/filter"
+	"github.com/pibuyu/sensitive_words_filter/store"
 )
 
 type Manager struct {
