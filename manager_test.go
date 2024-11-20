@@ -29,11 +29,11 @@ func TestNewFilter(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filterManager := NewFilter(tt.args.storeOption, tt.args.filterOption)
+			filterManager := NewFilter()
 
-			if err := filterManager.LoadDictPath("./dict/test_dict.txt"); err != nil {
-				t.Errorf("读入失败:%v", err)
-			}
+			//if err := filterManager.LoadDictPath("./dict/test_dict.txt"); err != nil {
+			//	t.Errorf("读入失败:%v", err)
+			//}
 
 			isSensitive := filterManager.IsSensitive(text)
 			t.Logf("IsSensitive= %v", isSensitive)

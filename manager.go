@@ -15,29 +15,37 @@ type Manager struct {
 //go:embed dict/default_dict.txt
 var defaultDict embed.FS
 
-func NewFilter(storeOption StoreOption, filterOption FilterOption) *Manager {
+// NewFilter 原本的方法签名 NewFilter(storeOption StoreOption, filterOption FilterOption)
+// 现在仅支持这俩默认选项，那就先不要求用户传递参数过来，后续如果有了更多可选的选项，可以提供一个NewFilterWithOptions方法
+func NewFilter() *Manager {
 	var filterStore store.Store
 	var myFilter filter.Filter
 
-	switch storeOption.Type {
-	case StoreMemory:
-		filterStore = store.NewMemoryModel()
+	filterStore = store.NewMemoryModel()
 
-	default:
-		panic("invalid store type")
-	}
+	dfaModel := filter.NewDfaModel()
+	go dfaModel.Listen(filterStore.GetAddChan(), filterStore.GetDelChan())
+	myFilter = dfaModel
 
-	switch filterOption.Type {
-	case FilterDfa:
-		dfaModel := filter.NewDfaModel()
+	//switch storeOption.Type {
+	//case StoreMemory:
+	//	filterStore = store.NewMemoryModel()
+	//
+	//default:
+	//	panic("invalid store type")
+	//}
+	//
+	//switch filterOption.Type {
+	//case FilterDfa:
+	//	dfaModel := filter.NewDfaModel()
+	//
+	//	go dfaModel.Listen(filterStore.GetAddChan(), filterStore.GetDelChan())
+	//
+	//	myFilter = dfaModel
 
-		go dfaModel.Listen(filterStore.GetAddChan(), filterStore.GetDelChan())
-
-		myFilter = dfaModel
-
-	default:
-		panic("invalid filter type")
-	}
+	//default:
+	//	panic("invalid filter type")
+	//}
 
 	//初始化Filter对象时读入默认dict文件
 	//将txt文件静态嵌入到项目中
