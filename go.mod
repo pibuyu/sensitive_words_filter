@@ -1,4 +1,4 @@
-module sensitive
+module sensitive_words_filter
 
 go 1.22.0
 

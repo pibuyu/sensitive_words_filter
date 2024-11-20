@@ -1,8 +1,8 @@
 package sensitive_words_filter
 
 import (
-	"sensitive/filter"
-	"sensitive/store"
+	"sensitive_words_filter/filter"
+	"sensitive_words_filter/store"
 )
 
 type Manager struct {
