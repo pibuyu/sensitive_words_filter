@@ -1,6 +1,7 @@
 package sensitive_words_filter
 
 import (
+	"fmt"
 	"github.com/pibuyu/sensitive_words_filter/filter"
 	"github.com/pibuyu/sensitive_words_filter/store"
 )
@@ -17,6 +18,7 @@ func NewFilter(storeOption StoreOption, filterOption FilterOption) *Manager {
 	switch storeOption.Type {
 	case StoreMemory:
 		filterStore = store.NewMemoryModel()
+
 	default:
 		panic("invalid store type")
 	}
@@ -33,6 +35,10 @@ func NewFilter(storeOption StoreOption, filterOption FilterOption) *Manager {
 		panic("invalid filter type")
 	}
 
+	//构造manager时读入默认的dict，后续仍然可以读入别的dict
+	if err := filterStore.LoadDictPath("./dict/default_dict.txt"); err != nil {
+		panic(fmt.Sprintf("failed to load default dictionary file: %v", err))
+	}
 	return &Manager{
 		Store:  filterStore,
 		Filter: myFilter,
