@@ -1,4 +1,4 @@
-module sensitive_words_filter
+module github.com/pibuyu/sensitive_words_filter
 
 go 1.22.0
 
