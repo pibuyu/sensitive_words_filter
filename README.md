@@ -1,6 +1,6 @@
 <h1>基于DFA+本地内存的敏感词过滤器实现。</h1>
 
-<h2>How to run?</h2>
+<h2>Example</h2>
 
 ```go
 import (
@@ -54,3 +54,11 @@ func TestNewFilter(t *testing.T) {
 	}
 }
 ```
+<h2>How to use?</h2>
+<code>go get -u "github.com/pibuyu/sensitive_words_filter"</code>
+<h3>API</h3>
+<h4>LoadDictPath(path ...string)error   	读入自定义敏感词词典</h4>
+<h4>IsSensitive(text string)bool        	检测给定文本中是否包含敏感词</h4>
+<h4>FindAll(text string)string 			找出给定文本中的所有敏感词</h4>
+<h4>Replace(text string,replace rune)string 	将给定文本中的敏感词替换为指定字符</h4>
+<h4>Remove(text string)string 			删除给定文本中的所有敏感词</h4>
