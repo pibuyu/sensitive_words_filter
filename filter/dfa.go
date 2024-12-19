@@ -1,5 +1,7 @@
 package filter
 
+import "sync"
+
 type dfaNode struct {
 	children map[rune]*dfaNode
 	isLeaf   bool
@@ -14,6 +16,7 @@ func newDfaNode() *dfaNode {
 
 type DfaModel struct {
 	root *dfaNode
+	mu   sync.RWMutex //加一个读写互斥锁
 }
 
 func NewDfaModel() *DfaModel {
@@ -23,6 +26,8 @@ func NewDfaModel() *DfaModel {
 }
 
 func (m *DfaModel) AddWords(words ...string) {
+	//m.mu.Lock()
+	//defer m.mu.Unlock() //批量写入之前先获取锁
 	for _, word := range words {
 		m.AddWord(word)
 	}
@@ -32,6 +37,7 @@ func (m *DfaModel) AddWord(word string) {
 	now := m.root
 	runes := []rune(word)
 
+	//遍历每个字符，如果字符存在于children中，移动到对应的子节点；否则创建新的子节点并添加到children中
 	for _, r := range runes {
 		if next, ok := now.children[r]; ok {
 			now = next
@@ -46,6 +52,9 @@ func (m *DfaModel) AddWord(word string) {
 }
 
 func (m *DfaModel) DelWords(words ...string) {
+	//批量删除之前同样获取锁
+	//m.mu.Lock()
+	//defer m.mu.Unlock()
 	for _, word := range words {
 		m.DelWord(word)
 	}
@@ -57,10 +66,13 @@ func (m *DfaModel) DelWord(word string) {
 	now := m.root
 	runes := []rune(word)
 
+	//如果字符不存在于children中，说明这个单词不在DFA树中，直接返回；如果存在，移动到对应的子节点
 	for _, r := range runes {
 		if next, ok := now.children[r]; !ok {
 			return
 		} else {
+			//记录遍历到的最后一个叶子节点，及其对应的下一个字符。
+			//遍历结束之后，从最后一个叶子节点的children中删除lastLeafNextRune，移除该单词
 			if now.isLeaf {
 				lastLeaf = now
 				lastLeafNextRune = r
@@ -146,6 +158,7 @@ func (m *DfaModel) FindAllCount(text string) map[string]int {
 	for pos := 0; pos < length; pos++ {
 		now, found = parent.children[runes[pos]]
 
+		//如果当前字符无法匹配，重置匹配状态，从起始位置的下一个字符重新开始
 		if !found {
 			parent = m.root
 			pos = start
@@ -153,6 +166,7 @@ func (m *DfaModel) FindAllCount(text string) map[string]int {
 			continue
 		}
 
+		//如果当前字符是叶子节点，并且起始位置小于等于当前位置，则将当前单词加入结果
 		if now.isLeaf && start <= pos {
 			res[string(runes[start:pos+1])]++
 		}
@@ -188,7 +202,7 @@ func (m *DfaModel) FindOne(text string) string {
 			start++
 			continue
 		}
-
+		//和findAll逻辑基本一致，不过这里不记录具体单词，旨在isLeaf==true时让count++
 		if now.isLeaf && start <= pos {
 			return string(runes[start : pos+1])
 		}
@@ -222,6 +236,7 @@ func (m *DfaModel) Replace(text string, repl rune) string {
 			continue
 		}
 
+		//如果匹配上了，从start到pos中间的字符都得换成repl
 		if now.isLeaf && start <= pos {
 			for i := start; i <= pos; i++ {
 				runes[i] = repl
@@ -262,7 +277,7 @@ func (m *DfaModel) Remove(text string) string {
 			parent = now
 		}
 	}
-
+	//	如果匹配上，则跳过当前单词，不将这个单词加入到filtered结果中
 	filtered = append(filtered, runes[start:]...)
 
 	return string(filtered)
